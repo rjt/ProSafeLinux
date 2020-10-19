@@ -64,7 +64,7 @@ class ProSafeLinux:
     CMD_FIMXE2 = psl_typ.PslTypHex(0x0002, "fixme2")
     CMD_NAME = psl_typ.PslTypString(0x0003, "name")
     CMD_MAC = psl_typ.PslTypMac(0x0004, "MAC")
-    CMD_FIMXE5 = psl_typ.PslTypHex(0x0005, "fixme5")
+    CMD_LOCATION = psl_typ.PslTypString(0x0005, "location")
     CMD_IP = psl_typ.PslTypIpv4(0x0006, "ip")
     CMD_NETMASK = psl_typ.PslTypIpv4(0x0007, "netmask")
     CMD_GATEWAY = psl_typ.PslTypIpv4(0x0008, "gateway")
@@ -73,8 +73,8 @@ class ProSafeLinux:
     CMD_DHCP = psl_typ.PslTypDHCP(0x000b, "dhcp")
     CMD_FIXMEC = psl_typ.PslTypHex(0x000c, "fixmeC")
     CMD_FIRMWAREV = psl_typ.PslTypStringQueryOnly(0x000d, "firmwarever")
-    CMD_FIMXEE = psl_typ.PslTypHex(0x000e, "fixmeE")
-    CMD_FIXMEF = psl_typ.PslTypHex(0x000f, "fixmeF")
+    CMD_FIRMWARE2V = psl_typ.PslTypStringQueryOnly(0x000e, "firmware2ver")
+    CMD_FIRMWAREACTIVE = psl_typ.PslTypHex(0x000f, "firmware_active")
     CMD_REBOOT = psl_typ.PslTypAction(0x0013, "reboot")
     CMD_FACTORY_RESET = psl_typ.PslTypAction(0x0400, "factory_reset")
     CMD_SPEED_STAT = psl_typ.PslTypSpeedStat(0x0c00, "speed_stat")
@@ -142,7 +142,7 @@ class ProSafeLinux:
             return False
         self.srcmac = pack_mac(get_hw_addr(interface))
 
-            # send socket
+        # send socket
         self.ssocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.ssocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.ssocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -151,6 +151,7 @@ class ProSafeLinux:
         # receive socket
         self.rsocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.rsocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        # self.rsocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
         self.rsocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         self.rsocket.bind(("255.255.255.255", self.RECPORT))
 
@@ -352,6 +353,10 @@ class ProSafeLinux:
         data = self.baseudp(destmac=mac, ctype=self.CTYPE_TRANSMIT_REQUEST)
         firmwarevers = self.query(self.get_cmd_by_name("firmwarever"), mac)
         firmwarevers = firmwarevers.values()[0].translate({ord("."):None})
+        # New firmwares put capital leter V in front ...
+        if "V" == firmwarevers[0]:
+            firmwarevers = firmwarevers[1:]
+
         if type(cmddict).__name__ == 'dict':
             if self.CMD_PASSWORD in cmddict:
                 if int(firmwarevers) > 10004:
@@ -360,7 +365,7 @@ class ProSafeLinux:
                     _hashkey = "NtgrSmartSwitchRock"
                     _plainpass = cmddict[self.CMD_PASSWORD]
                     _password = ""
-                    for i in range(len(_password)):
+                    for i in range(len(_plainpass)):
                         _password += chr(ord(_plainpass[i]) ^ ord(_hashkey[i]))
                 else:
                     _password = cmddict[self.CMD_PASSWORD]
@@ -419,7 +424,7 @@ class ProSafeLinux:
             if ((ProSafeLinux.CMD_IP in datadict) or
               (ProSafeLinux.CMD_GATEWAY in datadict) or
               (ProSafeLinux.CMD_NETMASK in datadict)):
-                errors.append("Use dhcp on,ip,gateway and netmask option together")
+                errors.append("Use dhcp off,ip,gateway and netmask option together")
 
         if len(errors) > 0:
             return (False, errors)
