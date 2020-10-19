@@ -56,20 +56,7 @@ Newer switches that have web servers may have "Switch Management Mode" set to "W
 
 # Help wanted
 
-Im sorry I am not active at this project anymore. It is open-source so perhaps you could find soneone who can help you.
- 
-I have found a security problem with this switch and was very disappointed in the answer from netgear. They need more than 6 Month to fix it and want the ethernet adress of it
- 
-Because of this, I do not use this switch anymore.
- 
-If you can read german, please read this two articles:
- 
-http://www.linux-magazin.de/Blogs/Insecurity-Bulletin/Gastbeitrag-Security-by-Obscurity-bei-Netgear-Switches
-http://www.linux-magazin.de/Ausgaben/2012/10/Switch
-
-Please feel free to fork the code and do any push request.
-
-Please contact me if you like to do the new maintainer of the projekt Sven Anders &lt;psl-github2013@sven.anders.im&gt;
+Feel free to fork the code and do any push request.
 
 # Other similar projects
 
