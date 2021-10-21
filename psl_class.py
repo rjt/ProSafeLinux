@@ -370,7 +370,7 @@ class ProSafeLinux:
                 if cmd != self.CMD_PASSWORD:
                     data += self.addudp(cmd, pdata)
         elif type(cmddict).__name__ == 'string':
-            print 'got string!'
+            print('got string!')
             data += cmddict
         data += self.addudp(self.CMD_END)
         self.send(ipadr, self.SENDPORT, data)
